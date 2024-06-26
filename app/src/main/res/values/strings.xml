@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Word_Challenge</string>
+    <string name="title_name">Word_Challenge</string>
+    <string name="option1">option</string>
+    <string name="option2">option</string>
+    <string name="question_label">問題文</string>
+    <string name="count_label">Q%d</string>
+    <string name="btn_answer">選択肢</string>
+
+    <string name="result_title">結果</string>
+    <string name="result_score">%d / 10</string>
+    <string name="result_total_score">理解している単語数 : %d</string>
+    <string name="btn_return">タイトルへ移行する</string>
+</resources>

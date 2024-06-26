@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp"
+    android:background="@drawable/titleimage">
+
+    <!-- Margin Top added to move title up -->
+
+    <TextView
+        android:id="@+id/countLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="242dp"
+        android:layout_marginTop="20dp"
+        android:text="Word     Challenge"
+        android:textColor="@color/black"
+        android:textSize="80sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/buttonDb1"
+        android:text="VeryHard 2500"
+        android:layout_width="300dp"
+        android:layout_height="80dp"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:layout_marginTop="6dp"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:backgroundTint="#00A000" />
+
+    <Button
+        android:id="@+id/buttonDb2"
+        android:text="TOEIC 1500"
+        android:layout_width="300dp"
+        android:layout_height="80dp"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:layout_marginTop="6dp"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:backgroundTint="#00A000" />
+
+</LinearLayout>
