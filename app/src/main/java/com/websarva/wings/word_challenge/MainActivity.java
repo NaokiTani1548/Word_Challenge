@@ -1,6 +1,8 @@
 package com.websarva.wings.word_challenge;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,6 +10,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -18,6 +21,29 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.Manifest;
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -30,13 +56,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArrayList<ArrayList<String>> quizArray = new ArrayList<>();
     ArrayList<String> allAnswers = new ArrayList<>(); // 全回答のリスト
     private DatabaseHelper helper;
+    private static final String CHANNEL_ID = "notification_channel";
+    private static final int REQUEST_CODE_POST_NOTIFICATIONS = 1;
+    private static final String TAG = "MainActivity";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         int db_type = getIntent().getIntExtra("DB_TYPE", 2);
+        createNotificationChannel();
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_CODE_POST_NOTIFICATIONS);
+            } else {
+                setRecurringAlarm();
+            }
+        } else {
+            setRecurringAlarm();
+        }
 
         countLabel = findViewById(R.id.countLabel);
         questionLabel = findViewById(R.id.questionLabel);
@@ -59,6 +99,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         loadQuizData(db_type);
         showNextQuiz();
+    }
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Notification Channel";
+            String description = "Channel for notification";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+            Log.d(TAG, "Notification channel created");
+        }
+    }
+    private void setRecurringAlarm() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+
+        long interval = 1000 * 60; // 1分ごと
+        long triggerAtMillis = Calendar.getInstance().getTimeInMillis() + interval;
+
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, triggerAtMillis, interval, pendingIntent);
+        Log.d(TAG, "Recurring alarm set for every minute");
+    }
+
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_POST_NOTIFICATIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                setRecurringAlarm();
+                Log.d(TAG, "Notification permission granted");
+            } else {
+                Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Notification permission denied");
+            }
+        }
     }
 
     private void loadQuizData(int type) {
